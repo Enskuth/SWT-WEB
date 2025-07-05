@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ถังขยะอัจฉริยะ</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to right, #f8f9fa, #e0e0e0);
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    .section {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 400px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .slider {
+      width: 100%;
+    }
+    #angleValue {
+      font-weight: bold;
+      color: #2980b9;
+    }
+    .status {
+      font-size: 18px;
+      margin-top: 10px;
+      color: #16a085;
+    }
+    .counts {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+    }
+    .count-box {
+      background: #ecf0f1;
+      padding: 10px;
+      border-radius: 8px;
+      width: 45%;
+    }
+    .count-box h3 {
+      margin: 5px 0;
+      color: #2c3e50;
+    }
+    .count-box p {
+      font-size: 22px;
+      color: #e67e22;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🗑️ ถังขยะอัจฉริยะ</h1>
+
+  <div class="section">
+    <label for="angle">ปรับมุม Servo (Manual):</label>
+    <input type="range" id="angle" class="slider" min="0" max="180" value="90" oninput="updateAngle(this.value)">
+    <p>มุมปัจจุบัน: <span id="angleValue">90</span>°</p>
+  </div>
+
+  <div class="section">
+    <div class="status" id="status">รอสถานะจากถังขยะ...</div>
+    <div class="counts">
+      <div class="count-box">
+        <h3>โลหะ</h3>
+        <p id="metalCount">0</p>
+      </div>
+      <div class="count-box">
+        <h3>อโลหะ</h3>
+        <p id="nonMetalCount">0</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const AUTH_TOKEN = "0DjU0Mbq5RxR4_obV9Xa05K4ckX9jmv2";
+    const BLYNK_API_BASE = "https://blynk.cloud/external/api";
+
+    function updateAngle(value) {
+      document.getElementById("angleValue").innerText = value;
+      fetch(${BLYNK_API_BASE}/update?token=${AUTH_TOKEN}&V1=${value})
+        .catch(error => alert("ส่งคำสั่งไม่สำเร็จ: " + error));
+    }
+
+    function fetchStatus() {
+      // อ่านข้อความสถานะ
+      fetch(${BLYNK_API_BASE}/get?token=${AUTH_TOKEN}&V0)
+        .then(res => res.text())
+        .then(data => {
+          document.getElementById("status").innerText = data;
+        });
+
+      // อ่านจำนวนโลหะ
+      fetch(${BLYNK_API_BASE}/get?token=${AUTH_TOKEN}&V2)
+        .then(res => res.text())
+        .then(data => {
+          document.getElementById("metalCount").innerText = data;
+        });
+
+      // อ่านจำนวนอโลหะ
+      fetch(${BLYNK_API_BASE}/get?token=${AUTH_TOKEN}&V3)
+        .then(res => res.text())
+        .then(data => {
+          document.getElementById("nonMetalCount").innerText = data;
+        });
+    }
+
+    // ดึงข้อมูลทุกๆ 2 วินาที
+    setInterval(fetchStatus, 2000);
+  </script>
+
+</body>
+</html>
