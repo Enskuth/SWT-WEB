@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ถังขยะอัจฉริยะ</title>
+  <title>Smart Trash Bin</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -13,14 +13,13 @@
     }
     h1 {
       color: #2c3e50;
-      margin-bottom: 10px;
     }
     .section {
       background: #ffffff;
       border-radius: 12px;
       padding: 20px;
       margin: 20px auto;
-      max-width: 400px;
+      max-width: 450px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     .slider {
@@ -55,27 +54,40 @@
       color: #e67e22;
       margin: 0;
     }
+    select {
+      margin-bottom: 20px;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>🗑️ ถังขยะอัจฉริยะ</h1>
+  <!-- 🔁 เลือกภาษา -->
+  <select id="language" onchange="changeLanguage(this.value)">
+    <option value="th">ภาษาไทย</option>
+    <option value="en">English</option>
+    <option value="zh">中文</option>
+  </select>
+
+  <h1 id="title">🗑️ ถังขยะอัจฉริยะ</h1>
 
   <div class="section">
-    <label for="angle">ปรับมุม Servo (Manual):</label>
+    <label id="labelServo" for="angle">ปรับมุม Servo (Manual):</label>
     <input type="range" id="angle" class="slider" min="0" max="180" value="90" oninput="updateAngle(this.value)">
-    <p>มุมปัจจุบัน: <span id="angleValue">90</span>°</p>
+    <p><span id="currentText">มุมปัจจุบัน:</span> <span id="angleValue">90</span>°</p>
   </div>
 
   <div class="section">
     <div class="status" id="status">รอสถานะจากถังขยะ...</div>
     <div class="counts">
       <div class="count-box">
-        <h3>โลหะ</h3>
+        <h3 id="metalLabel">โลหะ</h3>
         <p id="metalCount">0</p>
       </div>
       <div class="count-box">
-        <h3>อโลหะ</h3>
+        <h3 id="nonMetalLabel">อโลหะ</h3>
         <p id="nonMetalCount">0</p>
       </div>
     </div>
@@ -92,21 +104,18 @@
     }
 
     function fetchStatus() {
-      // อ่านข้อความสถานะ
       fetch(${BLYNK_API_BASE}/get?token=${AUTH_TOKEN}&V0)
         .then(res => res.text())
         .then(data => {
           document.getElementById("status").innerText = data;
         });
 
-      // อ่านจำนวนโลหะ
       fetch(${BLYNK_API_BASE}/get?token=${AUTH_TOKEN}&V2)
         .then(res => res.text())
         .then(data => {
           document.getElementById("metalCount").innerText = data;
         });
 
-      // อ่านจำนวนอโลหะ
       fetch(${BLYNK_API_BASE}/get?token=${AUTH_TOKEN}&V3)
         .then(res => res.text())
         .then(data => {
@@ -114,8 +123,44 @@
         });
     }
 
-    // ดึงข้อมูลทุกๆ 2 วินาที
     setInterval(fetchStatus, 2000);
+
+    // 🌍 แปลภาษา
+    const translations = {
+      th: {
+        title: "🗑️ ถังขยะอัจฉริยะ",
+        labelServo: "ปรับมุม Servo (Manual):",
+        currentText: "มุมปัจจุบัน:",
+        metalLabel: "โลหะ",
+        nonMetalLabel: "อโลหะ"
+      },
+      en: {
+        title: "🗑️ Smart Trash Bin",
+        labelServo: "Adjust Servo Angle (Manual):",
+        currentText: "Current Angle:",
+        metalLabel: "Metal",
+        nonMetalLabel: "Non-metal"
+      },
+      zh: {
+        title: "🗑️ 智能垃圾桶",
+        labelServo: "调整伺服角度（手动）:",
+        currentText: "当前角度:",
+        metalLabel: "金属",
+        nonMetalLabel: "非金属"
+      }
+    };
+
+    function changeLanguage(lang) {
+      const t = translations[lang];
+      document.getElementById("title").innerText = t.title;
+      document.getElementById("labelServo").innerText = t.labelServo;
+      document.getElementById("currentText").innerText = t.currentText;
+      document.getElementById("metalLabel").innerText = t.metalLabel;
+      document.getElementById("nonMetalLabel").innerText = t.nonMetalLabel;
+    }
+
+    // เริ่มจากภาษาไทย
+    changeLanguage("th");
   </script>
 
 </body>
