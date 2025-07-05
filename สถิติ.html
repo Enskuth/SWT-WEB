@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>สถิติ</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #eef2f3;
+      padding: 20px;
+    }
+    canvas {
+      max-width: 400px;
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 สถิติตรวจจับขยะ</h1>
+  <canvas id="barChart"></canvas>
+
+  <script>
+    const TOKEN = "0DjU0Mbq5RxR4_obV9Xa05K4ckX9jmv2";
+    const API = "https://blynk.cloud/external/api";
+
+    Promise.all([
+      fetch(${API}/get?token=${TOKEN}&V2).then(r => r.text()), // metal
+      fetch(${API}/get?token=${TOKEN}&V3).then(r => r.text())  // non-metal
+    ]).then(([metal, nonmetal]) => {
+      new Chart(document.getElementById("barChart"), {
+        type: 'bar',
+        data: {
+          labels: ["โลหะ", "อโลหะ"],
+          datasets: [{
+            label: "จำนวนที่ตรวจพบ",
+            data: [metal, nonmetal],
+            backgroundColor: ["#3498db", "#e67e22"]
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
